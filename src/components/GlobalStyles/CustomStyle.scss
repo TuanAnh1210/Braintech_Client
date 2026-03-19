@@ -1,0 +1,37 @@
+.note.comment {
+    .ant-tabs-top>.ant-tabs-nav::before {
+        border-bottom: 2px solid #f0f0f0 !important;
+    }
+
+    .ant-tabs .ant-tabs-ink-bar {
+        height: 3px;
+        background: var(--primary-color) !important;
+    }
+
+    .ant-tabs .ant-tabs-tab {
+        font-weight: 600;
+
+        &.ant-tabs-tab-active .ant-tabs-tab-btn {
+            color: var(--primary-color) !important;
+        }
+    }
+}
+
+.ant-progress-steps-item {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.ant-progress .ant-progress-steps-item-active {
+    background-color: #1677ff !important;
+}
+
+.ant-progress .ant-progress-text {
+    // display: none;
+    font-weight: 600;
+    color: #fff !important;
+}
+
+.anticon.anticon-check-circle {
+    color: #27ae60;
+
+}
