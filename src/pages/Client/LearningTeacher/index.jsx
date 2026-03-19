@@ -39,41 +39,41 @@ const LearningTeacher = () => {
     const intervalRef = useRef();
 
     const [cookies] = useCookies(['cookieLoginStudent']);
-    useEffect(() => {
-        fetch('http://localhost:8080/api/payment/checkCourse', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                courseId: courseId,
-                userId: cookies?.cookieLoginStudent?._id,
-            }),
-        })
-            .then((res) => res.json())
-            .then((res) => {
-                if (res?.data.length <= 0) {
-                    window.location.href = 'http://localhost:3000';
-                }
-            });
+    // useEffect(() => {
+    //     fetch('http://localhost:8080/api/payment/checkCourse', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             courseId: courseId,
+    //             userId: cookies?.cookieLoginStudent?._id,
+    //         }),
+    //     })
+    //         .then((res) => res.json())
+    //         .then((res) => {
+    //             if (res?.data.length <= 0) {
+    //                 window.location.href = 'http://localhost:3000';
+    //             }
+    //         });
 
-        fetch('http://localhost:8080/api/courses_teacher/checkPublic', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                courseId: courseId,
-            }),
-        })
-            .then((res) => res.json())
-            .then((res) => {
-                console.log(res?.data[0]?.isPublic == false, 'lot vao res lan nua roi');
-                if (!res?.data[0]?.isPublic) {
-                    window.location.href = 'http://localhost:3000';
-                }
-            });
-    }, []);
+    //     fetch('http://localhost:8080/api/courses_teacher/checkPublic', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             courseId: courseId,
+    //         }),
+    //     })
+    //         .then((res) => res.json())
+    //         .then((res) => {
+    //             console.log(res?.data[0]?.isPublic == false, 'lot vao res lan nua roi');
+    //             if (!res?.data[0]?.isPublic) {
+    //                 window.location.href = 'http://localhost:3000';
+    //             }
+    //         });
+    // }, []);
     const navigate = useNavigate();
 
     const [handleAddFinishLesson] = useAddFinishLessonMutation();

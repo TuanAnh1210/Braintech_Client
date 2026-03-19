@@ -54,14 +54,14 @@ const Register = () => {
 
             await emailjs
                 .send(
-                    'service_q0lye59', // Service ID from EmailJS dashboard
-                    'template_vyebfac', // Template ID from EmailJS dashboard
+                    'service_ixqpy3n', // Service ID from EmailJS dashboard
+                    'template_oe1uubb', // Template ID from EmailJS dashboard
                     templateParams,
-                    'TWJepBKsA2PD3FjQd', // User ID from EmailJS dashboard
+                    'QTnpdtznC_LQsxWq6', // User ID from EmailJS dashboard
                 )
                 .then((response) => {
                     console.log('Email sent successfully:', response);
-                    const expiry = Date.now() + 30000; // 5 minutes from now
+                    const expiry = Date.now() + 120000; // 2 minutes from now
                     setExpiryTime(expiry);
                 });
 
@@ -94,7 +94,7 @@ const Register = () => {
                 )
                 .then((response) => {
                     console.log('Email sent successfully:', response);
-                    const expiry = Date.now() + 30000; // 5 minutes from now
+                    const expiry = Date.now() + 120000; // 2 minutes from now
                     setExpiryTime(expiry);
                 });
 
