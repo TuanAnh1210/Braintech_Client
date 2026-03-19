@@ -181,7 +181,7 @@ const Header = () => {
                                             return (
                                                 <div key={menu.label}>
                                                     {noti?.data.filter((item) => item.status == false).length > 0 &&
-                                                        menu.label == 'Thông báo' ? (
+                                                    menu.label == 'Thông báo' ? (
                                                         <Badge
                                                             count={
                                                                 noti?.data.filter((item) => item.status == false).length
@@ -262,7 +262,7 @@ const Header = () => {
                         <FontAwesomeIcon icon={faBarsStaggered} />
                     </div>
                 </div>
-                <Search />
+                {/* <Search /> */}
             </Container>
             <AuthLayout />
         </header>
