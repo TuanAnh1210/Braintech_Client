@@ -57,23 +57,21 @@ const DetailCourse = () => {
     }, [cookies]);
 
     const handleBuyCourse = async () => {
-        const { data } = await createPaymentUrl({ courseId: courseId, voucherPrice: valueVoucher });
-        location.href = data.url;
-
-        // Tạo một thẻ <a> ẩn
-        // const link = document.createElement('a');
-        // link.href = data.url;
-        // link.target = '_blank';
-        // link.rel = 'noopener noreferrer';
-
-        // // Kích hoạt sự kiện nhấp chuột trên thẻ <a>
-        // const clickEvent = new MouseEvent('click', {
-        //     view: window,
-        //     bubbles: true,
-        //     cancelable: true,
-        // });
-
-        // link.dispatchEvent(clickEvent);
+        if (!isLogin) {
+            dispatch(openModal('login'));
+            return;
+        }
+        try {
+            const res = await createPaymentUrl({ courseId: courseId, voucherPrice: valueVoucher }).unwrap();
+            if (res && res.url) {
+                location.href = res.url;
+            } else {
+                message.error('Lỗi: Không nhận được URL thanh toán từ máy chủ.');
+            }
+        } catch (error) {
+            console.error('Lỗi thanh toán:', error);
+            message.error(error?.data?.message || 'Có lỗi xảy ra khi tạo thanh toán.');
+        }
     };
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
