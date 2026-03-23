@@ -5,15 +5,33 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { openModal } from '@/providers/slices/modalSlice';
 import { useGetFinishLessonByCourseIdQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
 import { useCookies } from 'react-cookie';
-import { Breadcrumb, Button, Empty, Form, Input, Modal, Rate, message, notification } from 'antd';
+import {
+    Breadcrumb,
+    Button,
+    Empty,
+    Form,
+    Input,
+    Modal,
+    Rate,
+    message,
+    notification,
+    Select,
+    Tag,
+    Typography,
+} from 'antd';
+// import { TicketOutlined, CheckCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
+
+const { Option } = Select;
+const { Text } = Typography;
 import RatingSide from './RatingSide';
 import { useGetUserByIdQuery } from '@/providers/apis/userApi';
 import { useGetDetailQuery } from '@/providers/apis/courseTeacherApi';
@@ -100,32 +118,28 @@ const DetailCourse = () => {
     //         }
     //     }, [cookies]);
 
-    function formatArrayWithQuantity() {
-        const { data: arr } = useGetUserByIdQuery();
-
-        var countMap = {};
-        arr?.vouchers?.forEach(function (obj) {
-            var key = JSON.stringify(obj);
+    const formattedArray = useMemo(() => {
+        const countMap = {};
+        currentUser?.vouchers?.forEach((obj) => {
+            const key = JSON.stringify(obj);
             countMap[key] = (countMap[key] || 0) + 1;
         });
 
-        var newArray = [];
-        Object.keys(countMap)?.forEach(function (key) {
-            var obj = JSON.parse(key);
-            newArray.push(Object.assign({}, obj, { quantity: countMap[key] }));
+        const newArray = [];
+        Object.keys(countMap).forEach((key) => {
+            const obj = JSON.parse(key);
+            newArray.push({ ...obj, quantity: countMap[key] });
         });
 
         return newArray;
-    }
-
-    var formattedArray = formatArrayWithQuantity();
+    }, [currentUser]);
 
     const handleChangeVoucher = (voucherId) => {
         if (voucherId === '0') {
             setValueVoucher(course?.course?.price);
             setApplyVoucher(false);
         } else {
-            const selectedVoucher = formattedArray.find((voucher) => voucher._id === voucherId);
+            const selectedVoucher = (formattedArray || []).find((voucher) => voucher._id === voucherId);
             if (selectedVoucher) {
                 const discount = (course?.course?.price * selectedVoucher.discountAmount) / 100;
                 const finalPrice = Math.max(
@@ -207,66 +221,88 @@ const DetailCourse = () => {
                                 <img className={cx('course_img')} src={course?.course?.thumb} alt="" />
                                 {course?.course?.price > 0 && (
                                     <div className={cx('voucher-container')}>
-                                        <h3>Áp dụng vouchers</h3>
+                                        <h3 className="flex items-center gap-2 text-gray-800 font-semibold mb-4 border-b pb-3">
+                                            {/* <TicketOutlined className="text-blue-500 text-xl" /> Áp dụng mã giảm giá */}
+                                            <p>Áp dụng mã giảm giá</p>
+                                        </h3>
                                         <div className={cx('select-wrapper')}>
-                                            <select
-                                                className={cx('select-css')}
-                                                onChange={(e) => handleChangeVoucher(e.target.value)}
+                                            <Select
+                                                className={cx('custom-select')}
+                                                style={{ width: '100%', minHeight: '45px' }}
+                                                placeholder="Chọn mã giảm giá"
+                                                onChange={(value) => handleChangeVoucher(value)}
+                                                defaultValue="0"
+                                                dropdownStyle={{
+                                                    padding: 8,
+                                                    borderRadius: 12,
+                                                    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                                }}
+                                                optionLabelProp="label"
+                                                size="large"
                                             >
-                                                <option value="0">Không sử dụng mã giảm giá</option>
+                                                <Option value="0" label="Không sử dụng mã giảm giá">
+                                                    <div className="py-2 font-medium text-gray-600">
+                                                        Không sử dụng mã giảm giá
+                                                    </div>
+                                                </Option>
                                                 {formattedArray?.map((voucher) => {
                                                     const isEligible = course.course.price >= voucher.conditionAmount;
                                                     return (
-                                                        <option
+                                                        <Option
                                                             key={voucher._id}
                                                             value={voucher._id}
-                                                            className={`py-2 px-4 mb-2 rounded-lg ${
-                                                                isEligible ? 'bg-gray-100' : 'bg-gray-300 text-gray-400'
-                                                            }`}
                                                             disabled={!isEligible}
+                                                            label={`Giảm ${voucher.discountAmount}%`}
+                                                            className={cx('voucher-option', { disabled: !isEligible })}
                                                         >
-                                                            <div className="flex items-center justify-between">
-                                                                <div className="flex flex-col">
-                                                                    <span
-                                                                        className={`text-sm font-medium ${
-                                                                            isEligible
-                                                                                ? 'text-gray-800'
-                                                                                : 'text-gray-400'
-                                                                        }`}
+                                                            <div
+                                                                className={cx('voucher-item', {
+                                                                    'opacity-50': !isEligible,
+                                                                })}
+                                                            >
+                                                                <div className={cx('voucher-info')}>
+                                                                    <Text
+                                                                        strong
+                                                                        className={cx('voucher-title', {
+                                                                            'text-gray-400': !isEligible,
+                                                                        })}
                                                                     >
                                                                         Giảm {voucher.discountAmount}% (Tối đa{' '}
-                                                                        {voucher.maxDiscountAmount}k)
-                                                                    </span>
-                                                                    <span
-                                                                        className={`text-xs ${
-                                                                            isEligible
-                                                                                ? 'text-gray-600'
-                                                                                : 'text-gray-400'
-                                                                        }`}
+                                                                        {voucher.maxDiscountAmount.toLocaleString()}đ)
+                                                                    </Text>
+                                                                    <div
+                                                                        className={cx('voucher-condition', {
+                                                                            'text-gray-500': !isEligible,
+                                                                        })}
                                                                     >
-                                                                        Điều kiện: Giá khóa học ≥{' '}
-                                                                        {voucher.conditionAmount}k
-                                                                    </span>
+                                                                        Đơn tối thiểu{' '}
+                                                                        {voucher.conditionAmount.toLocaleString()}đ
+                                                                    </div>
                                                                 </div>
-                                                                <span
-                                                                    className={`text-xs ${
-                                                                        isEligible ? 'text-gray-600' : 'text-gray-400'
-                                                                    }`}
+                                                                <Tag
+                                                                    color={isEligible ? 'blue-inverse' : 'default'}
+                                                                    className={cx('voucher-qty')}
                                                                 >
-                                                                    - x{voucher.quantity}
-                                                                </span>
+                                                                    x{voucher.quantity}
+                                                                </Tag>
                                                             </div>
-                                                        </option>
+                                                        </Option>
                                                     );
                                                 })}
-                                            </select>
+                                            </Select>
                                         </div>
 
-                                        <div className={cx('applied-voucher')}>
+                                        <div className={cx('applied-voucher-wrap')}>
                                             {isApplyVoucher ? (
-                                                <p className={cx('applied-vch')}>Đã áp dụng voucher</p>
+                                                <div className={cx('applied-vch-success')}>
+                                                    <CheckCircleOutlined className="mr-2" />
+                                                    Đã áp dụng thành công
+                                                </div>
                                             ) : (
-                                                <p>Chưa áp dụng voucher</p>
+                                                <div className={cx('applied-vch-empty')}>
+                                                    <InfoCircleOutlined className="mr-2" />
+                                                    Chưa áp dụng mã giảm giá
+                                                </div>
                                             )}
                                         </div>
                                     </div>
